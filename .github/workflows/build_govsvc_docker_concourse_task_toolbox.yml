@@ -16,19 +16,13 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # 2.4.0
-      - uses: ./.github/shared/publish_to_docker
-        with:
-          docker_context: ./reliability-engineering/dockerfiles/govsvc/concourse-task-toolbox
-          push_to_ghcr: true
-          push_to_dockerhub: false
-          ghcr_repo: ghcr.io/alphagov/automate/task-toolbox
-          image_tag: ${{ github.context.inputs.image_tag }}
-        # secrets:
-          ghcr_username: ${{ secrets.GHCR_USERNAME }}
-          ghcr_token: ${{ secrets.CHCR_TOKEN }}
-                      
+    uses: tomrosier/tech-ops/.github/workflows/publish_to_docker.yml@master
+    with:
+      docker_context: ./reliability-engineering/dockerfiles/govsvc/concourse-task-toolbox
+      push_to_ghcr: true
+      push_to_dockerhub: false
+      ghcr_repo: ghcr.io/alphagov/automate/task-toolbox
+      image_tag: ${{ github.event.inputs.image_tag }}
+    secrets:
+      ghcr_username: ${{ secrets.GHCR_USERNAME }}
+      ghcr_token: ${{ secrets.CHCR_TOKEN }}

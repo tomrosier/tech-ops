@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-push:
-    uses: tomrosier/tech-ops/.github/workflows/publish_to_docker@master
+    uses: tomrosier/tech-ops/.github/workflows/publish_to_docker.yml@master
     with:
       docker_context: ./reliability-engineering/dockerfiles/govsvc/octodns
       push_to_ghcr: true

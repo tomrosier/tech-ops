@@ -53,13 +53,13 @@ jobs:
         uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25 # v1.6.0
       - name: Login to DockerHub
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9 # v1.10.0
-        if: ${{ inputs.push_to_dockerhub == 'true' }}
+        if: ${{ inputs.push_to_dockerhub }}
         with:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
       - name: Login to GitHub Container Registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9 # v1.10.0
-        if: ${{ inputs.push_to_ghcr == 'true' }}
+        if: ${{ inputs.push_to_ghcr }}
         with:
           registry: ghcr.io
           username: ${{ secrets.ghcr_username }}
@@ -71,39 +71,32 @@ jobs:
 
           TAGS=""
 
-          if [ "${{ inputs.push_to_dockerhub }}" != "" ]; then
+          if [ "${{ inputs.push_to_dockerhub }}" == "true" ]; then
 
-            TAGS="${{ inputs.docker_hub_repo }}:latest\n"
+            TAGS="${{ inputs.docker_hub_repo }}:latest,"
 
             if [ "${{ inputs.image_tag }}" != "" ]; then
-              TAGS="${TAGS}${{ inputs.docker_hub_repo }}:${{ inputs.image_tag }}\n"
+              TAGS="${TAGS}${{ inputs.docker_hub_repo }}:${{ inputs.image_tag }}"
             fi
           fi
 
-          if [ "${{ inputs.push_to_ghcr }}" != "" ]; then
 
-            TAGS="${TAGS}${{ inputs.ghcr_repo }}:latest\n"
+          if [ "${{ inputs.push_to_ghcr }}" == "true" ]; then
+
+            TAGS="${TAGS}${{ inputs.ghcr_repo }}:latest,"
 
             if [ "${{ inputs.image_tag }}" != "" ]; then
-              TAGS="${TAGS}${{ inputs.ghcr_repo }}:${{ inputs.image_tag }}\n"
+              TAGS="${TAGS}${{ inputs.ghcr_repo }}:${{ inputs.image_tag }},"
             fi
           fi
-
-          TAGS="${TAGS//'%'/'%25'}"
-          TAGS="${TAGS//$'\n'/'%0A'}"
-          TAGS="${TAGS//$'\r'/'%0D'}"
 
           echo $TAGS
 
           echo "::set-output name=tags::$TAGS"
-      # - name: Build and push
-      #   id: docker_build
-      #   uses: docker/build-push-action@a66e35b9cbcf4ad0ea91ffcaf7bbad63ad9e0229 # v2.7.0
-      #   with:
-      #     context: ${{ inputs.docker_context }}
-      #     push: true
-      #     tags: ${{ steps.tags.outputs.tags }}
-
-
-            # ${{ inputs.docker_hub_repo }}:latest
-            # ${{ inputs.ghcr_repo }}:latest
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@a66e35b9cbcf4ad0ea91ffcaf7bbad63ad9e0229 # v2.7.0
+        with:
+          context: ${{ inputs.docker_context }}
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
